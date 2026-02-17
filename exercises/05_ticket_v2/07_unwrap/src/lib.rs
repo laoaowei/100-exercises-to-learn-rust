@@ -2,7 +2,21 @@
 //   When the description is invalid, instead, it should use a default description:
 //   "Description not provided".
 fn easy_ticket(title: String, description: String, status: Status) -> Ticket {
-    todo!()
+    let r = Ticket::new(title.clone(), description.clone(), status.clone());
+    match r {
+        Ok(t) => t,
+        Err(TicketErr::TitleErr { err }) => {
+            panic!("{}", err)
+        }
+        Err(TicketErr::DescriptionErr { err }) => {
+            easy_ticket(title, "Description not provided".into(), status)
+        }
+    }
+}
+
+enum TicketErr {
+    TitleErr { err: String },
+    DescriptionErr { err: String },
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -20,18 +34,26 @@ enum Status {
 }
 
 impl Ticket {
-    pub fn new(title: String, description: String, status: Status) -> Result<Ticket, String> {
+    pub fn new(title: String, description: String, status: Status) -> Result<Ticket, TicketErr> {
         if title.is_empty() {
-            return Err("Title cannot be empty".to_string());
+            return Err(TicketErr::TitleErr {
+                err: "Title cannot be empty".to_string(),
+            });
         }
         if title.len() > 50 {
-            return Err("Title cannot be longer than 50 bytes".to_string());
+            return Err(TicketErr::TitleErr {
+                err: "Title cannot be longer than 50 bytes".to_string(),
+            });
         }
         if description.is_empty() {
-            return Err("Description cannot be empty".to_string());
+            return Err(TicketErr::DescriptionErr {
+                err: "Description cannot be empty".to_string(),
+            });
         }
         if description.len() > 500 {
-            return Err("Description cannot be longer than 500 bytes".to_string());
+            return Err(TicketErr::DescriptionErr {
+                err: "Description cannot be longer than 500 bytes".to_string(),
+            });
         }
 
         Ok(Ticket {

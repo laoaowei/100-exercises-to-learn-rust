@@ -24,6 +24,12 @@ pub struct Ticket {
     pub status: Status,
 }
 
+impl TicketStore {
+    pub fn get(&self, tid: TicketId) -> Option<&Ticket> {
+        self.tickets.get(tid.0 as usize)
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct TicketDraft {
     pub title: TicketTitle,
@@ -44,8 +50,15 @@ impl TicketStore {
         }
     }
 
-    pub fn add_ticket(&mut self, ticket: Ticket) {
-        self.tickets.push(ticket);
+    pub fn add_ticket(&mut self, ticket: TicketDraft) -> TicketId {
+        let tid = self.tickets.len() as u64;
+        self.tickets.push(Ticket {
+            id: TicketId(tid),
+            title: ticket.title,
+            description: ticket.description,
+            status: Status::ToDo,
+        });
+        TicketId(tid)
     }
 }
 
